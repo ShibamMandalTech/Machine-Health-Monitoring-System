@@ -1,0 +1,23 @@
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+
+  if (!e || !e.parameter) {
+    return ContentService.createTextOutput("No parameters received");
+  }
+  
+  var temperature = e.parameter.temperature || "0";
+  var humidity = e.parameter.humidity || "0";
+  var sound = e.parameter.sound || "0";
+  var machineHealth = e.parameter.machineHealth;
+
+  sheet.appendRow([
+    new Date(),
+    parseFloat(temperature),
+    parseFloat(humidity),
+    parseInt(sound),
+    machineHealth
+  ]);
+
+  return ContentService.createTextOutput("Data recorded successfully");
+}
+
