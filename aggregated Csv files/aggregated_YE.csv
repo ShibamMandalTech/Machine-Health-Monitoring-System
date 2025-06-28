@@ -1,0 +1,2 @@
+Timestamp,Temperature(°C)_mean,Temperature(°C)_max,Temperature(°C)_min,Temperature(°C)_std,Humidity(%)_mean,Humidity(%)_max,Humidity(%)_min,Humidity(%)_std,SoundLevel(dB)_mean,SoundLevel(dB)_max,SoundLevel(dB)_min,SoundLevel(dB)_std,MachineHealth_<lambda>
+2025-12-31,33.73935582237469,69.5,-26.0,7.163644912318753,73.6832285115304,98.0,0.0,18.094442395869084,5.658662092624357,1405.0,0.0,32.89447442265172,Bad
