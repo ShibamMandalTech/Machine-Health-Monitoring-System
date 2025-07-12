@@ -28,14 +28,15 @@ This project implements a **Machine Health Monitoring System** using multiple **
 ## 🗂️ Project Structure
 machine-health-monitor/
 ├── /hub/
-│ └── hub_code.ino → Receives ESP-NOW data, serves dashboard, uploads to Google Sheets
+│   └── hub_code.ino            → Receives ESP-NOW data, serves dashboard, uploads to Google Sheets
 ├── /node/
-│ └── node_code.ino → Sends DHT + sound data to the hub using ESP-NOW
+│   └── node_code.ino           → Sends DHT + sound data to the hub using ESP-NOW
 ├── /mac_reader/
-│ └── get_mac_address.ino → Use this to retrieve ESP32 MAC addresses
+│   └── get_mac_address.ino     → Use this to retrieve ESP32 MAC addresses
 ├── /google_script/
-│ └── code.gs → Google Apps Script to log data in Google Sheets
+│   └── code.gs                 → Google Apps Script to log data in Google Sheets
 └── README.md
+
 
 
 ---
