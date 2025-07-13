@@ -1,31 +1,30 @@
-# 🔧 ESP32-Based Machine Health Monitoring System
+Machine Health Monitoring System
+This project implements a Machine Health Monitoring System using multiple ESP32 boards. It gathers temperature, humidity, and sound level data from sensor nodes and sends it wirelessly to a central hub using ESP-NOW. The hub visualizes real-time sensor data on a web dashboard and uploads it to Google Sheets for remote logging and machine health status prediction using Machine Learning (Random Forest).
 
-This project implements a **Machine Health Monitoring System** using multiple **ESP32 boards**. It gathers **temperature**, **humidity**, and **sound level** data from sensor nodes and sends it wirelessly to a central hub using **ESP-NOW**. The hub visualizes real-time sensor data on a web dashboard and uploads it to **Google Sheets** for remote logging and **machine health status** evaluation.
+Features
+ESP-NOW Communication between sensor nodes and hub
 
----
+Web Dashboard with live charts using Chart.js
 
-## 📦 Features
+Google Sheets Integration via Google Apps Script
 
-- 📡 **ESP-NOW Communication** between sensor nodes and hub  
-- 🌐 **Web Dashboard** with live charts using Chart.js  
-- 📈 **Google Sheets Integration** via Google Apps Script  
-- 🧠 **Health Status Evaluation** based on sensor thresholds  
-- 🖥️ **Real-time HTML Interface** hosted on the hub  
-- ☁️ **Cloud Logging** with timestamped entries  
-- 🛠️ Lightweight and scalable design  
+Health Status Evaluation & ML-Based Prediction
 
----
+Real-time HTML Interface hosted on the hub
 
-## 🔧 Hardware Used
+Automated Model Refresh with APScheduler
 
-- 🔌 **ESP32 Development Boards** (at least 2: one hub, one or more nodes)  
-- 🌡️ **DHT11 Sensor** for temperature and humidity  
-- 🎤 **Analog Sound Sensor** (connected to an analog input pin)  
-- 📶 **Wi-Fi Access Point** for hosting dashboard and uploading to cloud  
+Cloud Logging & Prediction using Google Colab and Flask
 
----
+Hardware Used
+ESP32 Development Boards (at least 2: one hub, one or more nodes)
 
-## 🗂️ Project Structure
+DHT11 Sensor for temperature and humidity
+
+Analog Sound Sensor (connected to analog input pin)
+
+Wi-Fi Access Point for hosting dashboard and uploading to cloud
+
 machine-health-monitor/
 ├── /hub/
 │   └── hub_code.ino            → Receives ESP-NOW data, serves dashboard, uploads to Google Sheets
@@ -35,118 +34,143 @@ machine-health-monitor/
 │   └── get_mac_address.ino     → Use this to retrieve ESP32 MAC addresses
 ├── /google_script/
 │   └── code.gs                 → Google Apps Script to log data in Google Sheets
+├── /ml_colab/
+│   ├── predict_app.ipynb       → Google Colab notebook with Flask API & Random Forest model
+│   └── data/                   → Folder for aggregated CSVs (hourly, weekly, etc.)
 └── README.md
 
+How It Works
+1. Sensor Node (ESP32)
+Reads temperature and humidity using DHT11
 
+Reads sound level via analog input
 
----
+Sends this data wirelessly via ESP-NOW to the hub ESP32
 
-## ⚙️ How It Works
+2. Hub ESP32
+Receives data from multiple sender nodes
 
-### 1. Sensor Node (ESP32)
+Displays live readings on a web dashboard (port 80)
 
-- Reads **temperature** and **humidity** using the **DHT11 sensor**  
-- Reads **sound level** via analog input pin  
-- Sends sensor data to the **hub ESP32** using **ESP-NOW** protocol  
+Uploads data to Google Sheets via a GET request to Apps Script
 
-### 2. Hub ESP32
+Can optionally forward data to a Flask ML API for health prediction
 
-- Receives data from multiple sensor nodes via **ESP-NOW**  
-- Hosts a **web server (port 80)** that shows:
-  - Live sensor values
-  - Time-stamped data
-  - Color-coded health status
-- Sends data to a **Google Sheet** using a GET request to a deployed **Google Apps Script Web App**
+3. Machine Learning API (Google Colab)
+A Flask server runs in Colab, hosting a Random Forest classifier
 
-### 3. Google Sheet
+The model:
 
-- Logs each data point with:
-  - Timestamp
-  - Temperature
-  - Humidity
-  - Sound Level
-  - Machine Health Status (e.g., Normal, Warning, Critical)
-- Can be used for historical analysis, graphing, or integration with ML models
+Reads recent sensor data from Google Sheets or uploaded CSVs
 
----
+Predicts machine health status: Normal / Warning / Critical
 
-## 🌐 Web Dashboard (Hosted on Hub)
+Refreshes the model every 10 minutes using APScheduler
 
-The hub serves a user-friendly HTML page with:
-- Live sensor data in real time  
-- Visual indicators (green/yellow/red) for machine health  
-- Refreshing data every few seconds  
-- Responsive design for mobile/desktop viewing  
+The ESP32 hub fetches the ML prediction and updates the dashboard accordingly
 
----
+4. Google Sheet
+Logs each data entry with:
 
-## 📈 Google Sheets Logging
+Timestamp
 
-### Deployment Steps:
-1. Open `code.gs` in your Google Script Editor
-2. Deploy it as a **Web App** with **"Anyone with the link"** access
-3. Copy the generated Web App URL
-4. Add this URL in `hub_code.ino` for Google Sheets logging
+Temperature
 
----
+Humidity
 
-## 🧪 Health Status Logic
+Sound Level
 
-Status is determined by comparing sensor readings against thresholds:
+Health Status (via threshold or ML)
 
-| Sensor       | Threshold Example      | Status Condition            |
-|--------------|------------------------|-----------------------------|
-| Temperature  | > 45°C                 | ⚠️ Warning / 🔴 Critical     |
-| Humidity     | > 80% or < 30%         | ⚠️ Warning                  |
-| Sound Level  | > 60 dB (analog level) | ⚠️ Warning / 🔴 Critical     |
+Can be exported as CSV for training new ML models
 
-Status is color-coded and displayed on the dashboard.
+Machine Learning Integration
+Model
+Model: Random Forest Classifier
 
----
+Input Features: Temperature, Humidity, Sound
 
-## 📋 Example Data Entry in Google Sheet
+Output Label: Machine Health (Normal / Warning / Critical)
 
-| Timestamp           | Temperature | Humidity | Sound | Status         |
-|---------------------|-------------|----------|--------|----------------|
-| 2025-07-12 15:23:01 | 43.5 °C     | 78.0 %   | 55.2   | Normal         |
-| 2025-07-12 15:28:15 | 47.2 °C     | 84.3 %   | 62.5   | Needs Maintenance |
+Preprocessing: Handled in Colab via pandas & scikit-learn
 
----
+Data Sources: Live sensor values (real-time) + Aggregated CSVs
 
-## 🚀 Setup Instructions
+Prediction Flow
+ESP32 hub logs data to Google Sheets
 
-1. **Get MAC addresses** of all ESP32s using `mac_reader/get_mac_address.ino`
-2. Update MAC addresses in `node_code.ino` and `hub_code.ino`
-3. Deploy Google Apps Script (`code.gs`) and get the Web App URL
-4. Flash `node_code.ino` to sender ESP32s
-5. Flash `hub_code.ino` to receiver ESP32 (hub)
-6. Connect hub ESP32 to Wi-Fi and open the IP in a browser to view the dashboard
+Colab Flask App periodically reads the sheet & CSVs
 
----
+Model predicts health status
 
-## ✅ To Do / Future Enhancements
+Flask API provides predictions to ESP32 hub
 
-- 🧠 Integrate with ML-based health prediction models  
-- 📊 Plot historical data using Google Charts or Chart.js  
-- 📱 Create a mobile app to view machine status  
-- 🔔 Add real-time alert notifications (SMS/email)  
-- 💾 Store local backup logs on SD card  
+Prediction is shown on the live dashboard
 
----
+Web Dashboard (ESP32)
+The hub’s web interface shows:
 
-## 👩‍💻 Author
+Live sensor readings (updated every 5s)
 
-**Shibam Mandal**  
+Machine status based on ML predictions
 
+Color-coded indicators:
 
+🟢 Normal
 
-If you found this project useful or inspiring:
+🟡 Warning
 
-🌟 Star this repository  
-🍴 Fork it  
-🐛 Report issues  
-💬 Share your suggestions
+🔴 Critical
 
----
+Google Sheets Logging
+Deployment Steps:
+Open code.gs in Google Apps Script
 
+Deploy as Web App, set access to "Anyone"
+
+Copy Web App URL and paste it into hub_code.ino
+
+Format Sheet columns: Time | Temp | Humidity | Sound | Status
+
+Health Status Logic (ML + Thresholds)
+Metric	Threshold / ML Input	Status
+Temperature	> 45°C	🔴 Critical
+Humidity	< 30% or > 80%	⚠Warning / 🔴 Critical
+Sound Level	> 60 (analog)	⚠Warning / 🔴 Critical
+ML Model	Uses all 3	 Final Health Status
+
+You can switch between threshold-based and ML-based prediction.
+
+ Sample Google Sheet Entry
+Time	Temp (°C)	Humidity (%)	Sound	Health Status
+2025-07-12 14:20:00	42.0	60	50	Normal
+2025-07-12 14:25:00	48.5	85	65	Critical
+
+ Setup Instructions
+Flash get_mac_address.ino on each ESP32 to get MAC addresses
+
+Update sender MACs in hub_code.ino, and hub MAC in node_code.ino
+
+Deploy Google Apps Script and update its URL in hub_code.ino
+
+Upload node_code.ino to all sensor ESP32s
+
+Upload hub_code.ino to the receiver ESP32
+
+Open ESP32’s IP address in browser to view live dashboard
+
+Run predict_app.ipynb on Google Colab to start ML Flask server
+
+Copy Flask endpoint URL and configure hub to fetch predictions
+
+ Future Enhancements
+ Train and deploy advanced models (e.g., XGBoost, LSTM)
+
+ Push alerts via SMS/Telegram on status change
+
+ Android App for dashboard viewing
+
+ Add SD card logging to hub for offline backup
+
+ Add buzzer/alarm when critical levels detected
 
